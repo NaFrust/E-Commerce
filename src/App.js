@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 
 import './App.css';
@@ -30,12 +30,10 @@ componentDidMount(){
             id: snapShot.id,
             ...snapShot.data()
           });
-      });
-      
-    }else{
-      setCurrentUser(userAuth);
+      });      
     }
-  })
+      setCurrentUser(userAuth);    
+  });
 }
 
 componentWillUnmount(){
@@ -49,14 +47,27 @@ componentWillUnmount(){
           <Switch>
             <Route exact path='/' component={HomePage}/>
             <Route path='/shop' component={ShopPage}/>
-            <Route path='/signin' component={SignInAndSignUpPage}/>
+            <Route exact path='/signin' 
+            render={()=> 
+              this.props.currentUser ? (
+            <Redirect to="/"/>
+            ) : (
+            <SignInAndSignUpPage />
+                )
+            }
+            />
           </Switch>
       </div>
     );
   }
 }
+
+const mapStateToProps = ({ user }) => ({
+  currentUser: user.currentUser
+});
+
 const mapDispatchToProps = dispatch => ({
   setCurrentUser: user => dispatch(setCurrentUser(user))
 });
 
-export default connect(null,mapDispatchToProps)(App);
+export default connect(mapStateToProps,mapDispatchToProps)(App);
